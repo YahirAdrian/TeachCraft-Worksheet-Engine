@@ -1,0 +1,97 @@
+{
+    "example_question": "Does Mia drink coffee in the morning?",
+    "positive_answer": "Yes, she does.",
+    "negative_answer": "No, she doesn't.",
+    "clues": [
+        {
+            "icon": "☕",
+            "clue": "Drinks in the morning"
+        },
+        {
+            "icon": "🚌",
+            "clue": "Goes to work"
+        },
+        {
+            "icon": "⚽",
+            "clue": "Plays sport often"
+        },
+        {
+            "icon": "🍖",
+            "clue": "Always eats meat"
+        }
+    ],
+    "characters": [
+        {
+            "answers": {
+                "answer1": "coffee",
+                "answer2": "by bus",
+                "answer3": "football",
+                "answer4": "never"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "tea",
+                "answer2": "by car",
+                "answer3": "tennis",
+                "answer4": "always"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "juice",
+                "answer2": "from home",
+                "answer3": "never",
+                "answer4": "sometimes"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "milk",
+                "answer2": "walks",
+                "answer3": "often",
+                "answer4": "never"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "water",
+                "answer2": "by bike",
+                "answer3": "often",
+                "answer4": "sometimes"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "coffee",
+                "answer2": "by train",
+                "answer3": "never",
+                "answer4": "always"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "tea",
+                "answer2": "from home",
+                "answer3": "football",
+                "answer4": "sometimes"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "juice",
+                "answer2": "by car",
+                "answer3": "often",
+                "answer4": "never"
+            }
+        },
+        {
+            "answers": {
+                "answer1": "milk",
+                "answer2": "walks",
+                "answer3": "tennis",
+                "answer4": "always"
+            }
+        }
+    ]
+}
