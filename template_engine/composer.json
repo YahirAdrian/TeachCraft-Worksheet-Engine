@@ -1,0 +1,16 @@
+{
+    "name": "yahir-adrian/template_engine",
+    "description": "Template Engine to generate worksheets from AI-generated content to PPTX files",
+    "autoload": {
+        "psr-4": {
+            "TemplateEngine\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Yahir Adrian",
+            "email": "yahiradrian7948@gmail.com"
+        }
+    ],
+    "require": {}
+}
