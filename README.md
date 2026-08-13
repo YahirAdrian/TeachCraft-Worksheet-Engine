@@ -1,6 +1,6 @@
 # TeachCraft Worksheet Generation Engine 
 
-<div style="display:flex; justify-content: center; margin-bottom: 32px;">
+<p align="center" style="margin-bottom: 32px;">
      <img alt="TeachCraft Worksheet Engine icon" src="assets/engine_icon.svg" width="256"/>
      <br/>
 </div>
