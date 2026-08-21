@@ -9,10 +9,10 @@ use TemplateEngine\JSONContext;
 use TemplateEngine\TemplateProcessor;
 
 $template_folder = __DIR__ . '/templates';
-$template_name = 'Guess-Who-template.pptx';
+$template_name = 'template.pptx';
 $template_path = "{$template_folder}/{$template_name}";
 $output_path = __DIR__ . '/output/generated.pptx';
-$json_path = __DIR__ . '/data/worksheet.json';
+$json_path = __DIR__ . '/data/content.json';
 
 
 
