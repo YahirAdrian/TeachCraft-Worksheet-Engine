@@ -1,8 +1,8 @@
 {
-    "name": "yahir-adrian/worksheetgeneration",
+    "name": "yahir-adrian/ai_generator",
     "autoload": {
         "psr-4": {
-            "YahirAdrian\\Worksheetgeneration\\": "src/"
+            "AIGenerator\\": "src/"
         }
     },
     "authors": [

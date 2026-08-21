@@ -1,6 +1,8 @@
 {
-    "title": "Guess Who",
-    "description": "A worksheet to practice yes/no questions in different verb tenses using the 'Guess Who' game format. This worksheet includes a set of characters and a series of questions that students can ask to guess the character based on the answers provided.",
-    "instructions": "Students ask questions to guess the character based on the clues and answers provided.",
-    "prompt_instructions": "Generate a set of four clues for the game. Some clues can be repeated across different characters, but each character must have at least one unique clue. The clues should be designed to help students practice forming questions. Clues should be short and simple. Example: [Clue] - Will travel to...,[Answer] - France. Clues and answers should match gramatically. The example question must be taken from a real example of a character."
+    "title": "Stacko Cards",
+    "description": "A set of cards with unconjugated sentences for students to practice Speaking while playing UNO Stacko",
+    "instructions": "Students take a card, conjugate the sentence and say it out loud.",
+    "prompt_instructions": "Generate a set of unconjugated sentences with words separated by dashes. Each sentence should be short and simple.",
+    "constraints": {
+    }
 }

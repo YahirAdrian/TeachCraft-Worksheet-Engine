@@ -49,10 +49,16 @@ final class TemplateInspector
 
         $outputSchema = $builder->build($slides);
 
+        $metadata = $this->loadMetadata($metadataPath);
+
+        $constraints = $metadata['constraints'] ?? [];
+        unset($metadata['constraints']);
+
         return [
-            'template' => $this->loadMetadata($metadataPath),
+            'template' => $metadata,
             'requirements' => $builder->getRequirements(),
             'output_schema' => $outputSchema,
+            'constraints' => $constraints,
             'warnings' => $validator->getWarnings(),
         ];
     }

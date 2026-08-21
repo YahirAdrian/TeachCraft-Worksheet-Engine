@@ -2,9 +2,14 @@
 
 require 'vendor/autoload.php';
 
+use AIGenerator\LessonContext;
+use AIGenerator\OpenAIProvider;
+use AIGenerator\PromptBuilder;
+use AIGenerator\ResponseValidator;
+use AIGenerator\SchemaLoader;
+use AIGenerator\WorksheetGenerator;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-
 $dotenv->load();
 
 $apiKey = getenv('OPENAI_API_KEY') ?: ($_ENV['OPENAI_API_KEY'] ?? null) ?: ($_SERVER['OPENAI_API_KEY'] ?? null);
@@ -13,86 +18,45 @@ if (!$apiKey) {
     throw new RuntimeException('OPENAI_API_KEY is missing from the environment.');
 }
 
-$client = OpenAI::client($apiKey);
+$schema_path = __DIR__ . '/data/schema.json';
+$lesson_path = __DIR__ . '/data/lesson.json';
+$output_path = __DIR__ . '/responses/content.json';
 
-$request = require 'prompts/guess-who.php';
+try {
+    $context = LessonContext::fromFile($lesson_path);
 
-$systemPrompt = <<<PROMPT
-You are an educational worksheet generator.
+    $generator = new WorksheetGenerator(
+        new SchemaLoader(),
+        new PromptBuilder(),
+        new OpenAIProvider($apiKey),
+        new ResponseValidator(),
+    );
 
-Return ONLY valid JSON.
+    $startTime = microtime(true);
 
-Do not use Markdown.
+    $data = $generator->generate($schema_path, $context);
 
-Do not explain anything.
+    $endTime = microtime(true);
 
-Do not wrap the JSON in code fences.
+    if (!is_dir(dirname($output_path))) {
+        mkdir(dirname($output_path), 0775, true);
+    }
 
-Use worksheet values to get info about the worksheet description, instructions, and prompt instructions.
+    $result = file_put_contents(
+        $output_path,
+        json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+    );
 
-Use lesson values to get info about the language, CEFR level, topic, and grammar.
+    if ($result === false) {
+        throw new RuntimeException("Unable to write the worksheet file: {$output_path}");
+    }
 
-Use teacher values to get info about the teacher instructions.
+    $executionTime = $endTime - $startTime;
 
-Use template values to get info about the template id and requirements.
-
-Use output_schema values to get info about the output schema. This indicates how the json output should be structured.
-PROMPT;
-
-$userPrompt = json_encode($request, JSON_PRETTY_PRINT);
-
-$startTime = microtime(true);
-
-$response = $client->responses()->create([
-    'model' => 'gpt-5-mini',
-    'reasoning' => [
-        'effort' => 'low',
-    ],
-    'input' => [
-        [
-            'role' => 'system',
-            'content' => [
-                [
-                    'type' => 'input_text',
-                    'text' => $systemPrompt,
-                ],
-            ],
-        ],
-        [
-            'role' => 'user',
-            'content' => [
-                [
-                    'type' => 'input_text',
-                    'text' => $userPrompt,
-                ],
-            ],
-        ],
-    ],
-    'text' => [
-        'format' => [
-            'type' => 'json_object',
-        ],
-    ],
-]);
-
-$json = $response->outputText;
-
-echo $json; 
-
-$data = json_decode($json, true);
-
-if (json_last_error() !== JSON_ERROR_NONE) {
-    die("Invalid JSON returned.");
+    echo 'Worksheet content generated successfully!' . PHP_EOL;
+    echo "Output: {$output_path}" . PHP_EOL;
+    echo 'Generated in: ' . round($executionTime, 2) . ' seconds' . PHP_EOL;
+} catch (Exception $e) {
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
+    exit(1);
 }
-
-file_put_contents(
-    'responses/worksheet.json',
-    json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-);
-
-$endTime = microtime(true);
-
-$executionTime = $endTime - $startTime;
-
-echo "Worksheet generated successfully!\n";
-echo "Generated in: " . round($executionTime, 2) . " seconds\n";

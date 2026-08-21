@@ -1,0 +1,14 @@
+{
+    "lesson": {
+        "language": "English",
+        "cefr": "A1",
+        "topic": "Present Simple",
+        "grammar": [
+            "present simple",
+            "routines"
+        ]
+    },
+    "teacher": {
+        "instructions": "Use vocabulary for present habits or routines like always, usually, often, sometimes, never"
+    }
+}

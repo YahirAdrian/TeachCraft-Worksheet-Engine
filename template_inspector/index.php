@@ -4,7 +4,7 @@ require 'vendor/autoload.php';
 
 use TemplateInspector\TemplateInspector;
 
-$template_path = __DIR__ . '/templates/Guess-Who-template.pptx';
+$template_path = __DIR__ . '/templates/template.pptx';
 $metadata_path = __DIR__ . '/data/metadata.json';
 $output_path = __DIR__ . '/output/schema.json';
 
