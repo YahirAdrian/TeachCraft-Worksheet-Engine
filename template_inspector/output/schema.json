@@ -6,13 +6,27 @@
         "prompt_instructions": "Generate a set of unconjugated sentences with words separated by dashes. Each sentence should be short and simple."
     },
     "requirements": {
-        "cards": 1,
-        "sentences_per_cards": 10
+        "clues": 4,
+        "characters": 9,
+        "answers_per_characters": 4
     },
     "output_schema": {
-        "cards": [
+        "clues": [
             {
-                "sentences": [
+                "icon4": "string",
+                "label": "string"
+            }
+        ],
+        "example_question": "string",
+        "positive_answer": "string",
+        "negative_answer": "string",
+        "characters": [
+            {
+                "icon1": "string",
+                "icon2": "string",
+                "icon3": "string",
+                "icon4": "string",
+                "answers": [
                     "string"
                 ]
             }
