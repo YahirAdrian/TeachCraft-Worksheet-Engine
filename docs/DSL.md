@@ -107,21 +107,23 @@ Replaces an object using an existing image resource.
 Selection Pane:
 
 ```
-lookup:icon
+lookup:icon1
 ```
 
 Current JSON:
+**IMPORTANT:** Lookup should always use emoji unicode values, since the library is emoji-based.
 
 ```json
 {
-    "icon":"shopping"
+    "icon1":"1F6D2"
 }
 ```
+
 
 The engine loads:
 
 ```
-assets/icons/shopping.svg
+assets/icons/1F6D2.svg
 ```
 
 and replaces the picture.
@@ -156,21 +158,6 @@ The engine:
 2. receives an image
 3. replaces the PowerPoint picture
 
----
-
-## ignore
-
-Objects marked as:
-
-```
-ignore
-```
-
-are skipped by the engine.
-
-Useful for decorative elements.
-
----
 
 # Component Tree
 
