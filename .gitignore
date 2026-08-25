@@ -1,3 +1,8 @@
 **/vendor/
 **/.env
 continue.md
+
+template/content/***
+template/input/***
+template/result/***
+template/schema/***
