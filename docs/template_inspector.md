@@ -16,13 +16,14 @@ Typical responsibilities include:
 Example:
 
 ```text
-PowerPoint Template file
+template/input/template.pptx
++ template/input/metadata.json
           │
           ▼
 Template Inspector
           │
           ▼
-Content schema.json
+template/schema/schema.json
 ```
 
 The Template Inspector validates that the PowerPoint template contains the DSL supported directives, maps it into the JSON schema, and joins it with the template metadata.

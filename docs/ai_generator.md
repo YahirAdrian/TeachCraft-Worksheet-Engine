@@ -1,14 +1,14 @@
 # 2. AI Generator
 
-**Directory:** [`/ai_generator`](./ai_generator)  
-**Specification:** [`/docs/ai-generator.md`](./docs/ai-generator.md)
+**Source:** [`src/AiGenerator`](../src/AiGenerator)  
+**Specification:** [`docs/ai_generator.md`](./ai_generator.md)
 
 The AI Generator creates the educational content required by a worksheet.
 
 **It receives:**
 
-- the template `schema.json`,
-- lesson information,
+- the template `schema.json` from `template/schema/`,
+- lesson information from `template/input/lesson.json`,
 - teacher instructions/additional prompt,
 - worksheet-specific requirements,
 
@@ -30,14 +30,14 @@ The AI Generator does **not** decide PowerPoint positions, formatting, slide lay
 Example:
 
 ```text
-Template Definition (schema.json)
-+ Teacher/lesson Requirements
+template/schema/schema.json
++ template/input/lesson.json
         │
         ▼
 AI Generator
         │
         ▼
-Structured Worksheet JSON content
+template/content/content.json
 ```
 
 Because this layer is independent from PowerPoint rendering, TeachCraft can support different AI providers without changing the template-processing logic.
