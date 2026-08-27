@@ -56,6 +56,38 @@ class OpenXMLPackage{
         }
     }
 
+    public function partExists(string $path) : bool{
+        return $this->zip->locateName($path) !== false;
+    }
+
+    public function getPart(string $path) : string{
+        $contents = $this->zip->getFromName($path);
+
+        if($contents === false){
+            throw new Exception("Could not read {$path}");
+        }
+
+        return $contents;
+    }
+
+    public function replacePart(string $path, string $contents): void
+    {
+        $result = $this->zip->addFromString($path, $contents);
+
+        if($result === false){
+            throw new Exception("Unable to replace {$path}");
+        }
+    }
+
+    public function addPart(string $path, string $contents): void
+    {
+        $result = $this->zip->addFromString($path, $contents);
+
+        if($result === false){
+            throw new Exception("Unable to add {$path}");
+        }
+    }
+
     public function close() : void{
         $this->zip->close();
     }

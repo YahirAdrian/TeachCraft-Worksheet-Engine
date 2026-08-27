@@ -36,6 +36,11 @@ class Slide{
             'a',
             'http://schemas.openxmlformats.org/drawingml/2006/main'
         );
+
+        $this->xpath->registerNamespace(
+            'r',
+            'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+        );
     }
 
     public function getDocument(): DomDocument{

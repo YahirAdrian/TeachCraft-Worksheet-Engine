@@ -46,6 +46,31 @@ class Shape{
         return $this->node->localName === 'grpSp';
     }
 
+    public function isPicture() : bool{
+        return $this->node->localName === 'pic';
+    }
+
+    public function setImageReference(string $relationshipId) : void{
+
+        if(!$this->isPicture()){
+            return;
+        }
+
+        $blips = $this->xpath->query('.//a:blip', $this->node);
+
+        if($blips === false || $blips->length === 0){
+            return;
+        }
+
+        $blip = $blips->item(0);
+
+        if(!$blip instanceof DOMElement){
+            return;
+        }
+
+        $blip->setAttribute('r:embed', $relationshipId);
+    }
+
     public function getChildren(): array{
         if(!$this->isGroup()){
             return [];

@@ -140,4 +140,107 @@ function assertTrue(bool $value, string $label): void
     }
 }
 
+$lookupXml = <<<'XML'
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="1" name="lookup:icon1" /></p:nvPicPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="2" name="lookup:icon2" /></p:nvPicPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="3" name="lookup:icon1*" /></p:nvPicPr>
+      </p:pic>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="4" name="lookup:icon2*" /></p:nvPicPr>
+      </p:pic>
+    </p:spTree>
+  </p:cSld>
+</p:sld>
+XML;
+
+$validator4 = new TemplateValidator();
+$builder4 = new SchemaBuilder($validator4);
+$schema4 = $builder4->build([new Slide($lookupXml)]);
+
+assertSame(
+    [
+        'icon1' => 'emoji_unicode',
+        'icon2' => 'emoji_unicode',
+    ],
+    $schema4,
+    'Lookup reuse should not create duplicate schema fields'
+);
+
+assertSame([], $validator4->getWarnings(), 'Expected no warnings for valid lookup reuse');
+
+$starOnlyXml = <<<'XML'
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="1" name="lookup:icon1*" /></p:nvPicPr>
+      </p:pic>
+    </p:spTree>
+  </p:cSld>
+</p:sld>
+XML;
+
+$validator5 = new TemplateValidator();
+$builder5 = new SchemaBuilder($validator5);
+$schema5 = $builder5->build([new Slide($starOnlyXml)]);
+
+assertSame(
+    ['icon1' => 'emoji_unicode'],
+    $schema5,
+    'A starred lookup without a declaration should be normalized to a unique field'
+);
+
+assertTrue($validator5->hasWarnings(), 'Expected a warning for a starred lookup without a declaration');
+
+$lookupOnShapeXml = <<<'XML'
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="1" name="lookup:icon1" /></p:nvSpPr>
+      </p:sp>
+    </p:spTree>
+  </p:cSld>
+</p:sld>
+XML;
+
+$validator6 = new TemplateValidator();
+$builder6 = new SchemaBuilder($validator6);
+$schema6 = $builder6->build([new Slide($lookupOnShapeXml)]);
+
+assertSame(
+    ['icon1' => 'emoji_unicode'],
+    $schema6,
+    'A lookup on a non-picture shape should still be exposed as a unique field'
+);
+
+assertTrue($validator6->hasWarnings(), 'Expected a warning for a lookup on a non-picture shape');
+
+$emptyLookupXml = <<<'XML'
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:pic>
+        <p:nvPicPr><p:cNvPr id="1" name="lookup:" /></p:nvPicPr>
+      </p:pic>
+    </p:spTree>
+  </p:cSld>
+</p:sld>
+XML;
+
+$validator7 = new TemplateValidator();
+$builder7 = new SchemaBuilder($validator7);
+$schema7 = $builder7->build([new Slide($emptyLookupXml)]);
+
+assertSame([], $schema7, 'An empty lookup field should be skipped');
+assertTrue($validator7->hasWarnings(), 'Expected a warning for an empty lookup field');
+
 fwrite(STDOUT, "SchemaBuilder test passed." . PHP_EOL);

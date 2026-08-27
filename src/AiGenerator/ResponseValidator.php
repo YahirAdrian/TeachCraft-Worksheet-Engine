@@ -51,6 +51,16 @@ final class ResponseValidator
             return;
         }
 
+        if ($expectedType === 'emoji_unicode') {
+            if (!is_string($value) || !preg_match('/^[0-9A-Fa-f]+(?:-[0-9A-Fa-f]+)*$/', $value)) {
+                throw new RuntimeException(
+                    "'{$path}' must be an emoji Unicode code point, e.g. '2615' or '1F9D1-200D-1F373'."
+                );
+            }
+
+            return;
+        }
+
         if (!is_array($expectedType)) {
             return;
         }

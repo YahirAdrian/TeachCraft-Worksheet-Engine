@@ -34,6 +34,8 @@ final class PromptBuilder
 
         Use constraints values to respect length and formatting limits.
 
+        Fields typed as emoji_unicode must contain an emoji's Unicode code point in uppercase hexadecimal without the 'U+' prefix. Use '-' to separate multiple code points in a sequence (e.g., '2615', '1F68C', '1F9D1-200D-1F373').
+
         Use lesson values to get info about the language, CEFR level, topic, and grammar.
 
         Use teacher values to get info about the teacher instructions.

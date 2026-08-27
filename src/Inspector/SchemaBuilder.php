@@ -13,6 +13,7 @@ final class SchemaBuilder
     private DirectiveParser $parser;
     private array $requirements = [];
     private array $firstGroupRBindFields = [];
+    private array $lookupRegistry = [];
 
     public function __construct(private TemplateValidator $validator)
     {
@@ -30,6 +31,7 @@ final class SchemaBuilder
         $schema = [];
         $this->requirements = [];
         $this->firstGroupRBindFields = [];
+        $this->lookupRegistry = [];
 
         foreach ($slides as $slide) {
             $this->buildShapes($slide->getShapes(), $schema, null, false);
@@ -74,9 +76,12 @@ final class SchemaBuilder
                 return;
 
             case DirectiveType::Bind:
-            case DirectiveType::Lookup:
             case DirectiveType::Asset:
                 $schema[$directive->getField()] = 'string';
+                return;
+
+            case DirectiveType::Lookup:
+                $this->buildLookup($shape, $directive, $schema);
                 return;
 
             case DirectiveType::Image:
@@ -117,7 +122,49 @@ final class SchemaBuilder
             $this->buildShape($child, $childSchema, $field, $isFirstGroup);
         }
 
-        $schema[$field] = [$childSchema];
+        if (!array_key_exists($field, $schema)) {
+            $schema[$field] = [$childSchema];
+
+            return;
+        }
+
+        $schema[$field][0] = array_merge($schema[$field][0], $childSchema);
+    }
+
+    private function buildLookup(Shape $shape, Directive $directive, array &$schema): void
+    {
+        $field = $directive->getField();
+        $reusable = str_ends_with($field, '*');
+
+        if ($reusable) {
+            $field = substr($field, 0, -1);
+        }
+
+        if ($field === '') {
+            $this->validator->addWarning("The 'lookup' directive field cannot be empty.");
+
+            return;
+        }
+
+        if (!$shape->isPicture()) {
+            $this->validator->addWarning(
+                "The 'lookup' directive '{$field}' must belong to a picture shape."
+            );
+        }
+
+        if (array_key_exists($field, $this->lookupRegistry)) {
+            return;
+        }
+
+        $this->lookupRegistry[$field] = true;
+
+        if ($reusable) {
+            $this->validator->addWarning(
+                "The 'lookup' directive '{$field}' is only declared as a reusable occurrence; treating it as unique."
+            );
+        }
+
+        $schema[$field] = 'emoji_unicode';
     }
 
     private function buildRBind(Directive $directive, array &$schema, ?string $repeatField, bool $isFirstGroup): void

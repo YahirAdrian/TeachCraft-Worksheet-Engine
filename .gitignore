@@ -6,3 +6,7 @@ template/content/***
 template/input/***
 template/result/***
 template/schema/***
+
+#Ignore OpenMoji assets files
+/assets/**
+!assets/icons/**

@@ -14,6 +14,7 @@ use TemplateEngine\OpenXMLPackage;
 use TemplateEngine\Slide;
 use TemplateEngine\JSONContext;
 use TemplateEngine\TemplateProcessor;
+use TemplateEngine\OpenMojiResolver;
 
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -128,17 +129,21 @@ try {
 
     $package = new OpenXMLPackage($resultPath);
 
-    $xml = $package->getSlideXML(1);
+    $resolver = new OpenMojiResolver("{$root}/assets/icons");
+
+    $slideNumber = 1;
+
+    $xml = $package->getSlideXML($slideNumber);
 
     $slide = new Slide($xml);
 
     $jsonContext = new JSONContext($content);
 
-    $processor = new TemplateProcessor($slide);
+    $processor = new TemplateProcessor($slide, $package, $resolver, $slideNumber);
 
     $processor->process($jsonContext);
 
-    $package->replaceSlide(1, $slide->getXml());
+    $package->replaceSlide($slideNumber, $slide->getXml());
     $package->close();
 
     echo 'Worksheet generated: ' . $resultPath . PHP_EOL;

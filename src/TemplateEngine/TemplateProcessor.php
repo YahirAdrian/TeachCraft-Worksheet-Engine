@@ -11,8 +11,17 @@ class TemplateProcessor
 
     private array $repeatPositions = [];
     private array $rbindPositions = [];
+    private array $assetRegistry = [];
+    private array $mediaByValue = [];
+    private ?MediaManager $mediaManager;
 
-    public function __construct(private Slide $slide) {
+    public function __construct(
+        private Slide $slide,
+        private ?OpenXMLPackage $package = null,
+        private ?AssetResolverInterface $resolver = null,
+        private int $slideNumber = 1,
+    ) {
+        $this->mediaManager = $package === null ? null : new MediaManager($package);
     }
 
     public function process(JSONContext $context): void
@@ -42,6 +51,12 @@ class TemplateProcessor
 
         if(str_starts_with($name, 'rbind:')) {
             $this->processRBind($shape, $context, $repeatState);
+
+            return;
+        }
+
+        if(str_starts_with($name, 'lookup:')) {
+            $this->processLookup($shape, $context);
 
             return;
         }
@@ -219,6 +234,100 @@ class TemplateProcessor
         }
 
         $shape->setText((string) $value);
+
+        echo "Bound {$directive} => {$value}"
+            . PHP_EOL;
+    }
+
+    private function processLookup(Shape $shape, JSONContext $context): void {
+        $directive = trim($shape->getName());
+
+        $field = trim(
+            substr($directive, strlen('lookup:'))
+        );
+
+        if ($field === '') {
+            echo "Warning: Empty lookup field."
+                . PHP_EOL;
+
+            return;
+        }
+
+        if (str_ends_with($field, '*')) {
+            $field = substr($field, 0, -1);
+        }
+
+        if ($this->mediaManager === null || $this->resolver === null) {
+            echo "Warning: {$directive} requires a package, resolver, and slide number."
+                . PHP_EOL;
+
+            return;
+        }
+
+        if (!$shape->isPicture()) {
+            echo "Warning: {$directive} must belong to a picture shape."
+                . PHP_EOL;
+
+            return;
+        }
+
+        if (isset($this->assetRegistry[$field])) {
+            $entry = $this->assetRegistry[$field];
+
+            $shape->setImageReference($entry['rid']);
+
+            echo "Reused {$directive} => {$entry['value']}"
+                . PHP_EOL;
+
+            return;
+        }
+
+        $value = $context->get($field);
+
+        if ($value === null || !is_string($value) || $value === '') {
+            echo "Warning: No value for {$directive}."
+                . PHP_EOL;
+
+            return;
+        }
+
+        $assetPath = $this->resolver->resolve($value);
+
+        if ($assetPath === null) {
+            echo "Warning: No asset for '{$value}'."
+                . PHP_EOL;
+
+            return;
+        }
+
+        $mediaFile = 'lookup_' . basename($assetPath);
+
+        if (!isset($this->mediaByValue[$value])) {
+            $contents = file_get_contents($assetPath);
+
+            if ($contents === false) {
+                echo "Warning: Unable to read asset '{$assetPath}'."
+                    . PHP_EOL;
+
+                return;
+            }
+
+            $this->mediaManager->ensureSvgContentType();
+            $this->mediaManager->addMedia($mediaFile, $contents);
+            $this->mediaByValue[$value] = $mediaFile;
+        }
+
+        $relationshipId = $this->mediaManager->ensureRelationship(
+            $this->slideNumber,
+            $this->mediaByValue[$value]
+        );
+
+        $this->assetRegistry[$field] = [
+            'value' => $value,
+            'rid' => $relationshipId,
+        ];
+
+        $shape->setImageReference($relationshipId);
 
         echo "Bound {$directive} => {$value}"
             . PHP_EOL;
