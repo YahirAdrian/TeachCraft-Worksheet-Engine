@@ -67,11 +67,15 @@ $schema = $builder->build([new Slide($xml)]);
 
 assertSame(
     [
-        'title' => 'string',
-        'characters' => [
+        'slides' => [
             [
-                'portrait' => ['prompt' => 'string'],
-                'answers' => ['string'],
+                'title' => 'string',
+                'characters' => [
+                    [
+                        'portrait' => ['prompt' => 'string'],
+                        'answers' => ['string'],
+                    ],
+                ],
             ],
         ],
     ],
@@ -81,6 +85,7 @@ assertSame(
 
 assertSame(
     [
+        'slides' => 1,
         'characters' => 1,
         'answers_per_characters' => 1,
     ],
@@ -96,10 +101,14 @@ $schema2 = $builder2->build([new Slide($nestedXml)]);
 
 assertSame(
     [
-        'clues' => [
+        'slides' => [
             [
-                'icon' => 'string',
-                'label' => 'string',
+                'clues' => [
+                    [
+                        'icon' => 'string',
+                        'label' => 'string',
+                    ],
+                ],
             ],
         ],
     ],
@@ -108,7 +117,10 @@ assertSame(
 );
 
 assertSame(
-    ['clues' => 1],
+    [
+        'slides' => 1,
+        'clues' => 1,
+    ],
     $builder2->getRequirements(),
     'Nested requirements mismatch, asset should not add a requirement'
 );
@@ -129,7 +141,7 @@ $validator3 = new TemplateValidator();
 $builder3 = new SchemaBuilder($validator3);
 $schema3 = $builder3->build([new Slide($rbindOutsideXml)]);
 
-assertSame([], $schema3, 'rbind outside a repeat should be skipped');
+assertSame(['slides' => [[]]], $schema3, 'rbind outside a repeat should be skipped');
 assertTrue($validator3->hasWarnings(), 'Expected a warning for rbind outside repeat');
 
 function assertTrue(bool $value, string $label): void
@@ -167,8 +179,12 @@ $schema4 = $builder4->build([new Slide($lookupXml)]);
 
 assertSame(
     [
-        'icon1' => 'emoji_unicode',
-        'icon2' => 'emoji_unicode',
+        'slides' => [
+            [
+                'icon1' => 'emoji_unicode',
+                'icon2' => 'emoji_unicode',
+            ],
+        ],
     ],
     $schema4,
     'Lookup reuse should not create duplicate schema fields'
@@ -193,7 +209,11 @@ $builder5 = new SchemaBuilder($validator5);
 $schema5 = $builder5->build([new Slide($starOnlyXml)]);
 
 assertSame(
-    ['icon1' => 'emoji_unicode'],
+    [
+        'slides' => [
+            ['icon1' => 'emoji_unicode'],
+        ],
+    ],
     $schema5,
     'A starred lookup without a declaration should be normalized to a unique field'
 );
@@ -217,7 +237,11 @@ $builder6 = new SchemaBuilder($validator6);
 $schema6 = $builder6->build([new Slide($lookupOnShapeXml)]);
 
 assertSame(
-    ['icon1' => 'emoji_unicode'],
+    [
+        'slides' => [
+            ['icon1' => 'emoji_unicode'],
+        ],
+    ],
     $schema6,
     'A lookup on a non-picture shape should still be exposed as a unique field'
 );
@@ -240,7 +264,15 @@ $validator7 = new TemplateValidator();
 $builder7 = new SchemaBuilder($validator7);
 $schema7 = $builder7->build([new Slide($emptyLookupXml)]);
 
-assertSame([], $schema7, 'An empty lookup field should be skipped');
+assertSame(
+    [
+        'slides' => [
+            [],
+        ],
+    ],
+    $schema7,
+    'An empty lookup field should be skipped'
+);
 assertTrue($validator7->hasWarnings(), 'Expected a warning for an empty lookup field');
 
 fwrite(STDOUT, "SchemaBuilder test passed." . PHP_EOL);

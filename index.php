@@ -10,11 +10,12 @@ use AIGenerator\PromptBuilder;
 use AIGenerator\ResponseValidator;
 use AIGenerator\SchemaLoader;
 use AIGenerator\WorksheetGenerator;
+use TemplateEngine\MediaManager;
+use TemplateEngine\OpenMojiResolver;
 use TemplateEngine\OpenXMLPackage;
 use TemplateEngine\Slide;
 use TemplateEngine\JSONContext;
 use TemplateEngine\TemplateProcessor;
-use TemplateEngine\OpenMojiResolver;
 
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
@@ -131,19 +132,33 @@ try {
 
     $resolver = new OpenMojiResolver("{$root}/assets/icons");
 
-    $slideNumber = 1;
+    $mediaManager = new MediaManager($package);
 
-    $xml = $package->getSlideXML($slideNumber);
+    $slideCount = $package->getSlideCount();
 
-    $slide = new Slide($xml);
+    if ($slideCount === 0) {
+        throw new RuntimeException('The template contains no slides.');
+    }
 
-    $jsonContext = new JSONContext($content);
+    $slideContents = $content['slides'] ?? [];
 
-    $processor = new TemplateProcessor($slide, $package, $resolver, $slideNumber);
+    if (!is_array($slideContents)) {
+        throw new RuntimeException('The content file must expose a top-level "slides" array.');
+    }
 
-    $processor->process($jsonContext);
+    for ($slideNumber = 1; $slideNumber <= $slideCount; $slideNumber++) {
+        $slideContent = $slideContents[$slideNumber - 1] ?? [];
 
-    $package->replaceSlide($slideNumber, $slide->getXml());
+        if (!is_array($slideContent)) {
+            $slideContent = [];
+        }
+
+        $slide = new Slide($package->getSlideXML($slideNumber));
+        $processor = new TemplateProcessor($slide, $package, $resolver, $slideNumber, $mediaManager);
+        $processor->process(new JSONContext($slideContent));
+        $package->replaceSlide($slideNumber, $slide->getXml());
+    }
+
     $package->close();
 
     echo 'Worksheet generated: ' . $resultPath . PHP_EOL;

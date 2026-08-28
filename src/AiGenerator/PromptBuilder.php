@@ -28,9 +28,9 @@ final class PromptBuilder
 
         Use template values to get info about the worksheet title, description, instructions, and prompt instructions.
 
-        Use requirements values to get info about how many items and collections are required.
+        Use requirements values to get info about how many items, collections, and slides are required.
 
-        Use output_schema values to get info about the output schema. This indicates how the json output should be structured.
+        Use output_schema values to get info about the output schema. This indicates how the json output should be structured. The top-level `slides` array contains one entry per slide; each entry describes the content needed for that specific slide. The number of entries in your response's `slides` array MUST equal `requirements.slides`.
 
         Use constraints values to respect length and formatting limits.
 

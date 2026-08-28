@@ -17,6 +17,16 @@ class OpenXMLPackage{
         }
     }
 
+    public function getSlideCount() : int{
+        $count = 0;
+
+        while ($this->zip->locateName("ppt/slides/slide" . ($count + 1) . ".xml") !== false) {
+            $count++;
+        }
+
+        return $count;
+    }
+
     public function hasSlide(int $number) : bool{
         $slidePath = "ppt/slides/slide{$number}.xml";
 

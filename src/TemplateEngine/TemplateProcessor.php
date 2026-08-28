@@ -20,7 +20,14 @@ class TemplateProcessor
         private ?OpenXMLPackage $package = null,
         private ?AssetResolverInterface $resolver = null,
         private int $slideNumber = 1,
+        ?MediaManager $mediaManager = null,
     ) {
+        if ($mediaManager !== null) {
+            $this->mediaManager = $mediaManager;
+
+            return;
+        }
+
         $this->mediaManager = $package === null ? null : new MediaManager($package);
     }
 

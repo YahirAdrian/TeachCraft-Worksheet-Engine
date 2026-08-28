@@ -80,4 +80,34 @@ $emptyList = [
 ];
 expectPass($validator, $emptyList, $schema, 'Empty collection is valid');
 
+$slidesSchema = [
+    'slides' => [
+        [
+            'title' => 'string',
+            'img1' => 'emoji_unicode',
+            'img2' => 'emoji_unicode',
+        ],
+    ],
+];
+
+$validSlides = [
+    'slides' => [
+        ['title' => 'Board 1', 'img1' => '1F431', 'img2' => '1F436'],
+        ['title' => 'Board 2', 'img1' => '1F437', 'img2' => '1F42E'],
+    ],
+];
+expectPass($validator, $validSlides, $slidesSchema, 'Slides array with matching entries');
+
+$missingSlides = $validSlides;
+unset($missingSlides['slides']);
+expectFail($validator, $missingSlides, $slidesSchema, 'Missing slides key');
+
+$wrongSlideType = $validSlides;
+$wrongSlideType['slides'][0]['img1'] = 'not-a-code';
+expectFail($validator, $wrongSlideType, $slidesSchema, 'Wrong emoji code type in slide');
+
+$slideNotObject = $validSlides;
+$slideNotObject['slides'][1] = 'oops';
+expectFail($validator, $slideNotObject, $slidesSchema, 'Non-object slide entry');
+
 fwrite(STDOUT, "ResponseValidator test passed." . PHP_EOL);

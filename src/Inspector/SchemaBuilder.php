@@ -23,21 +23,42 @@ final class SchemaBuilder
     /**
      * Build the output schema from an array of slides.
      *
+     * Every template, regardless of slide count, exposes its content through a
+     * top-level `slides` array so the AI Generator and the Template Engine can
+     * produce and bind a distinct content payload for each slide.
+     *
      * @param Slide[] $slides The slides to inspect
-     * @return array The nested output schema
+     * @return array The nested output schema with a `slides` wrapper
      */
     public function build(array $slides): array
     {
-        $schema = [];
-        $this->requirements = [];
+        $this->requirements = ['slides' => count($slides)];
         $this->firstGroupRBindFields = [];
         $this->lookupRegistry = [];
 
-        foreach ($slides as $slide) {
-            $this->buildShapes($slide->getShapes(), $schema, null, false);
+        $slideSchemas = [];
+        $firstSlideRequirements = [];
+
+        foreach ($slides as $index => $slide) {
+            $this->firstGroupRBindFields = [];
+            $this->lookupRegistry = [];
+            $this->requirements = [];
+
+            $slideSchema = [];
+            $this->buildShapes($slide->getShapes(), $slideSchema, null, false);
+            $slideSchemas[] = $slideSchema;
+
+            if ($index === 0) {
+                $firstSlideRequirements = $this->requirements;
+            }
         }
 
-        return $schema;
+        $this->requirements = array_merge(
+            ['slides' => count($slides)],
+            $firstSlideRequirements,
+        );
+
+        return ['slides' => $slideSchemas];
     }
 
     public function getRequirements(): array
